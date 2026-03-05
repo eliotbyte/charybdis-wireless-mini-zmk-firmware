@@ -1,24 +1,21 @@
 # This file generates the GitHub Actions matrix.
 
 board:
-  - nice_nano_v2
+  - nice_nano
 
 shield:
   - charybdis_left
   - charybdis_right
   - charybdis_dongle
-  - settings_reset
 
 format:
-  - bt
   - dongle
-  - reset
 
 keymap:
-  - qwerty
+  - colemak_dh
 
 include:
-  - board: nice_nano_v2
+  - board: nice_nano
     shield: charybdis_right
-    keymap: qwerty
+    keymap: colemak_dh
     snippet: studio-rpc-usb-uart
