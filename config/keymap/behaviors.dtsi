@@ -225,5 +225,46 @@
             bindings      = <&kp COMMA>, <&kp SEMICOLON>;
             mods          = <(MOD_LSFT | MOD_RSFT)>;
         };
+
+        macro_to_rus: macro_to_rus {
+            compatible = "zmk,behavior-macro";
+            label = "MACRO_TO_RUS";
+            #binding-cells = <0>;
+            bindings = <&kp LA(LS(N2)) &to 1>;
+        };
+
+        macro_to_eng: macro_to_eng {
+            compatible = "zmk,behavior-macro";
+            label = "MACRO_TO_ENG";
+            #binding-cells = <0>;
+            bindings = <&kp LA(LS(N1)) &to 0>;
+        };
+
+        to_rus: to_rus {
+            compatible = "zmk,behavior-hold-tap";
+            label = "TO_RUS";
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&macro_to_rus>;
+        };
+
+        to_eng: to_eng {
+            compatible = "zmk,behavior-hold-tap";
+            label = "TO_ENG";
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&macro_to_eng>;
+        };
+
+        hold: hold {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HOLD";
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+        };
     };
 };
