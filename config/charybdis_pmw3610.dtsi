@@ -46,8 +46,14 @@
         reg = <0>;
         spi-max-frequency = <2000000>;
         motion-gpios = <&gpio0 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+
+        /* Map PMW3610 axes to pointer axes */
         zephyr,axis-x = <INPUT_REL_X>;
         zephyr,axis-y = <INPUT_REL_Y>;
+
+        /* Fix inverted directions: invert both X and Y */
+        invert-x;
+        invert-y;
 
         /* Using default PMW3610 power/downshift behavior from Zephyr binding */
     };
