@@ -66,7 +66,7 @@
             display-name = "Mouse";
             bindings = <
 &trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
-&trans     &mkp MB4    &mmv MOVE_UP  &mkp MB5   &trans      &trans       &trans      &mkp LCLK   &mkp RCLK   &mkp MCLK   &mo 6       &trans
+&trans     &mkp MB4    &mmv MOVE_UP  &mkp MB5   &trans      &trans       &trans      &mkp LCLK   &mkp RCLK   &mkp MCLK   &mo 6       &mo 7
 &trans     &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_RIGHT &trans  &trans  &trans      &msc MOVE_LEFT &msc MOVE_DOWN &msc MOVE_UP &msc MOVE_RIGHT &trans
                               &trans      &trans      &trans     &trans      &trans
             >;
@@ -74,6 +74,16 @@
 
         SCROLL {
             display-name = "Scroll";
+            bindings = <
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+                              &trans      &trans      &trans     &trans      &trans
+            >;
+        };
+
+        SLOW {
+            display-name = "Slow";
             bindings = <
 &trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
 &trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans

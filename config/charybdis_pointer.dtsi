@@ -20,4 +20,12 @@
         layers = <6>;
         input-processors = <&zip_xy_to_scroll_mapper>;
     };
+    /* when slow layer (7) is active: same as base but lower scale = slower cursor */
+    slow_pointer {
+        layers = <7>;
+        input-processors = <
+            &pointer_auto_layer 5 850
+            &zip_xy_scaler 5 12
+        >;
+    };
 };
