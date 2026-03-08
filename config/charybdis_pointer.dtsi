@@ -15,4 +15,16 @@
         &pointer_auto_layer 5 850
         &zip_xy_scaler 5 5
     >;
+
+    /* layer 9 (SCROLL): ring hold — trackball → scroll, divisor 8 */
+    scroll_mode {
+        layers = <9>;
+        input-processors = <&zip_xy_to_scroll_mapper &zip_scroll_scaler 1 8>;
+    };
+
+    /* layer 10 (PRECISION): pinky hold — slow cursor, divisor 3 */
+    precision_mode {
+        layers = <10>;
+        input-processors = <&pointer_auto_layer 5 850 &zip_xy_scaler 1 3>;
+    };
 };

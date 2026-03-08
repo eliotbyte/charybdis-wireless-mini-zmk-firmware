@@ -15,7 +15,7 @@
         EN_COLEMAK {
             display-name = "EnColemak";
             bindings = <
-&kp TAB     &kp Q     &kp W     &kp F     &kp P     &kp G       &kp J     &kp L       &kp U       &kp Y     &kp SEMICOLON  &kp ESC
+&kp TAB     &kp Q     &kp W     &kp F     &kp P     &kp G       &kp J     &kp L       &lt 9 U     &lt 10 Y    &kp SEMICOLON  &kp ESC
 &kp LSHFT   &kp A     &kp R     &kp S     &kp T     &kp D       &kp H     &kp N       &kp E       &kp I     &kp O     &kp APOS
 &kp LCTRL   &kp Z     &kp X     &kp C     &kp V     &kp B       &kp K     &kp M       &kp COMMA   &kp DOT   &kp FSLH  &kp LGUI
                            &to_rus LALT 0     &mo 2   &kp SPACE      &kp ENTER     &mo 3
@@ -25,7 +25,7 @@
         RU_STD {
             display-name = "RuStd";
             bindings = <
-&kp TAB     &kp Q     &kp W     &kp E     &kp R     &hold GRAVE T     &kp Y     &kp U          &hold O I      &kp P     &kp LBKT  &kp ESC
+&kp TAB     &kp Q     &kp W     &kp E     &kp R     &hold GRAVE T     &kp Y     &kp U          &lt 9 O     &lt 10 P    &kp LBKT  &kp ESC
 &kp LSHFT   &kp A     &kp S     &kp D     &kp F     &kp G             &kp H     &kp J          &kp K          &kp L     &kp SEMICOLON  &kp APOS
 &kp LCTRL   &kp Z     &kp X     &kp C     &kp V     &kp B             &kp N     &hold RBKT M   &kp COMMA      &kp DOT   &kp FSLH  &kp LGUI
                            &to_eng LALT 0     &mo 2   &kp SPACE         &kp ENTER     &mo 3
@@ -65,9 +65,33 @@
         MOUSE {
             display-name = "Mouse";
             bindings = <
-&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
-&trans     &mkp MB4    &mmv MOVE_UP  &mkp MB5   &trans      &trans       &trans      &mkp LCLK   &mkp RCLK   &mkp MCLK   &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &mkp LCLK   &mkp RCLK   &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &mkp MB4    &mkp MB5    &trans      &trans      &trans      &trans
 &trans     &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_RIGHT &trans  &trans  &trans      &msc MOVE_LEFT &msc MOVE_DOWN &msc MOVE_UP &msc MOVE_RIGHT &trans
+                              &trans      &trans      &trans     &mkp MCLK   &trans
+            >;
+        };
+
+        _lay6 { bindings = <&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans>; };
+        _lay7 { bindings = <&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans>; };
+        _lay8 { bindings = <&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans>; };
+
+        SCROLL {
+            display-name = "Scroll";
+            bindings = <
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+                              &trans      &trans      &trans     &trans      &trans
+            >;
+        };
+
+        PRECISION {
+            display-name = "Precision";
+            bindings = <
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans       &trans      &trans      &trans      &trans      &trans      &trans
                               &trans      &trans      &trans     &trans      &trans
             >;
         };
