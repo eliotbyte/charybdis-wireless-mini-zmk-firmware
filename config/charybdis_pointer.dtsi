@@ -15,4 +15,9 @@
         &pointer_auto_layer 5 850
         &zip_xy_scaler 5 5
     >;
+    /* when scroll layer (6) is active: trackball → scroll */
+    scroller {
+        layers = <6>;
+        input-processors = <&zip_xy_to_scroll_mapper>;
+    };
 };
