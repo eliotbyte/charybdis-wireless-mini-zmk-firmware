@@ -15,10 +15,10 @@
         &pointer_auto_layer 5 850
         &zip_xy_scaler 5 5
     >;
-    /* when scroll layer (6) is active: trackball → scroll */
+    /* when scroll layer (6) is active: trackball → scroll (mapper + scaler for smoother steps) */
     scroller {
         layers = <6>;
-        input-processors = <&zip_xy_to_scroll_mapper>;
+        input-processors = <&zip_xy_to_scroll_mapper &zip_scroll_scaler 1 2>;
     };
     /* when slow layer (7) is active: same as base but lower scale = slower cursor */
     slow_pointer {
