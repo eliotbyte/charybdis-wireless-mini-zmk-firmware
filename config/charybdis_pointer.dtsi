@@ -10,17 +10,14 @@
 };
 
 &trackball_listener {
-    /* base: slower cursor (2/5 = 0.4x), was 5/5 */
     input-processors = <
         &pointer_auto_layer 5 850
         &zip_xy_scaler 2 5
     >;
-    /* scroll: much slower (1/10), was 1/2 */
     scroller {
         layers = <6>;
-        input-processors = <&zip_xy_to_scroll_mapper &zip_scroll_scaler 1 16>;
+        input-processors = <&zip_xy_to_scroll_mapper &zip_scroll_scaler 1 32>;
     };
-    /* slow layer (7): even slower cursor (1/5) */
     slow_pointer {
         layers = <7>;
         input-processors = <
