@@ -26,8 +26,27 @@ def patch_file(path: pathlib.Path) -> None:
         if n != 1:
             die("failed to insert atomic include (anchor not found)")
 
-    # 2) Inject scan retry + scan kick logic near start_scan()
-    # Prefer inserting after a forward declaration; if none exists, insert just before the definition.
+    # 2) Inject scan retry + scan kick logic near the scanning function.
+    # ZMK has used both start_scan() and start_scanning() across revisions.
+    scan_fn_names = ("start_scanning", "start_scan")
+
+    def find_decl_or_def(name: str) -> tuple[str, re.Match[str] | None, re.Match[str] | None]:
+        decl = re.search(rf"^static\s+int\s+{name}\s*\(\s*void\s*\)\s*;\s*$", text, re.MULTILINE)
+        definition = re.search(rf"^static\s+int\s+{name}\s*\(\s*void\s*\)\s*\{{", text, re.MULTILINE)
+        return name, decl, definition
+
+    chosen = None
+    for nm in scan_fn_names:
+        _, d, df = find_decl_or_def(nm)
+        if d or df:
+            chosen = (nm, d, df)
+            break
+
+    if not chosen:
+        die("failed to find start_scanning()/start_scan() declaration or definition anchor")
+
+    scan_fn, decl_m, def_m = chosen
+
     if "scan_kick_work_handler" not in text:
         injection = """\
 
@@ -43,7 +62,7 @@ K_WORK_DELAYABLE_DEFINE(scan_retry_work, scan_retry_work_handler);
 static void scan_retry_work_handler(struct k_work *work) {
 	ARG_UNUSED(work);
 	atomic_clear(&scan_retry_scheduled);
-	start_scan();
+	%s();
 }
 
 /*
@@ -59,69 +78,53 @@ K_WORK_DELAYABLE_DEFINE(scan_kick_work, scan_kick_work_handler);
 
 static void scan_kick_work_handler(struct k_work *work) {
 	ARG_UNUSED(work);
-	(void)start_scan();
+	(void)%s();
 	k_work_schedule(&scan_kick_work, K_MSEC(CONFIG_ZMK_SPLIT_BLE_CENTRAL_SCAN_KICK_INTERVAL_MS));
 }
-"""
-        forward_decl_re = re.compile(r"^static\s+int\s+start_scan\s*\(\s*void\s*\)\s*;\s*$",
-                                     re.MULTILINE)
-        m = forward_decl_re.search(text)
-        if m:
-            insert_at = m.end()
+""" % (scan_fn, scan_fn)
+
+        if decl_m:
+            insert_at = decl_m.end()
             text = text[:insert_at] + injection + text[insert_at:]
         else:
-            # Fall back to inserting before the function definition.
-            def_re = re.compile(r"^static\s+int\s+start_scan\s*\(\s*void\s*\)\s*\{",
-                                re.MULTILINE)
-            m2 = def_re.search(text)
-            if not m2:
-                die("failed to find start_scan() declaration or definition anchor")
-            insert_at = m2.start()
+            # Insert before the function definition.
+            assert def_m is not None
+            insert_at = def_m.start()
             text = text[:insert_at] + injection + text[insert_at:]
 
     # 3) Make scanning active + resilient.
     text = text.replace("BT_LE_SCAN_PASSIVE", "BT_LE_SCAN_ACTIVE")
 
-    if "(void)bt_le_scan_stop();" not in text:
-        # Insert stop call near the top of start_scan(), after the err declaration.
+    # ZMK mainline has its own stop_scanning(); don't try to force bt_le_scan_stop() here.
+
+    # 3b) Ensure scan start is active.
+    text = text.replace("BT_LE_SCAN_PASSIVE", "BT_LE_SCAN_ACTIVE")
+
+    # 3c) Add retry-on-failure inside start_scanning()/start_scan() when scan_start fails.
+    # We key off the existing log: "Scanning failed to start (err %d)"
+    if "scan_retry_scheduled" in text and "k_work_schedule(&scan_retry_work" not in text:
+        # Find the error log line and insert retry right after it.
+        # Also reset any is_scanning flag if present so future kicks can restart.
+        has_is_scanning = "static bool is_scanning" in text
+        retry_snippet = "\n\t\tif (atomic_cas(&scan_retry_scheduled, 0, 1)) {\n"
+        if has_is_scanning:
+            retry_snippet += "\t\t\tis_scanning = false;\n"
+        retry_snippet += "\t\t\tk_work_schedule(&scan_retry_work, K_MSEC(750));\n\t\t}\n"
+
+        # Since we can't rely on exact surrounding braces, just inject after the LOG_ERR line once.
         text, n = re.subn(
-            r"(static\s+int\s+start_scan\s*\(\s*void\s*\)\s*\{\s*\n(?:[ \t].*\n)*?[ \t]*int\s+err\s*;\s*\n)",
-            r"\1\n\t(void)bt_le_scan_stop();\n",
+            r'(LOG_ERR\("Scanning failed to start \(err %d\)", err\);\n)',
+            r"\1" + retry_snippet,
             text,
             count=1,
             flags=re.MULTILINE,
         )
         if n != 1:
-            die("failed to inject bt_le_scan_stop() into start_scan() (pattern mismatch)")
-
-    if "Scanning already active" not in text:
-        # Try a conservative injection inside the "if (err) {" block following scan_start().
-        # If upstream differs too much, we fail loudly rather than risking a half-broken patch.
-        scan_start_re = re.compile(
-            r"(err\s*=\s*bt_le_scan_start\(\s*BT_LE_SCAN_ACTIVE\s*,\s*split_central_device_found\s*\)\s*;\s*\n)"
-            r"(\s*if\s*\(\s*err\s*\)\s*\{\s*\n)",
-            re.MULTILINE,
-        )
-        m = scan_start_re.search(text)
-        if not m:
-            die("failed to find bt_le_scan_start() + if(err) block to patch")
-
-        inject = (
-            "\t\tif (err == -EALREADY) {\n"
-            "\t\t\tLOG_DBG(\"Scanning already active\");\n"
-            "\t\t\treturn 0;\n"
-            "\t\t}\n\n"
-            "\t\tif (atomic_cas(&scan_retry_scheduled, 0, 1)) {\n"
-            "\t\t\tk_work_schedule(&scan_retry_work, K_MSEC(750));\n"
-            "\t\t}\n\n"
-        )
-
-        # Insert just after the opening brace of the if(err) block.
-        insert_at = m.end(2)
-        text = text[:insert_at] + inject + text[insert_at:]
+            die("failed to inject scan-start retry after LOG_ERR (anchor not found)")
 
     # 4) Schedule scan kick in central init (idempotent).
     if "k_work_schedule(&scan_kick_work" not in text:
+        # This init function name is stable.
         text, n = re.subn(
             r"(bt_conn_cb_register\(&conn_callbacks\);\s*\n)",
             r"\1\n\tk_work_schedule(&scan_kick_work, K_NO_WAIT);\n",
