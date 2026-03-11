@@ -56,7 +56,7 @@ jobs:
 
     steps:
     - name: Install tree
-      run: apt-get update && apt-get install -y tree
+      run: apt-get update && apt-get install -y tree python3
 
     # ───────── update zmk sub-repo ─────────
     - name: Checkout workflow repo
@@ -70,13 +70,8 @@ jobs:
         west init -l --mf $GITHUB_WORKSPACE/config/west.yml "$GITHUB_WORKSPACE/config"
         echo "🔄 Updating and synchronizing all repositories in the workspace."
         west update
-        echo "🩹 Applying local patches (if any)..."
-        if compgen -G "$GITHUB_WORKSPACE/patches/*.patch" > /dev/null; then
-          for p in "$GITHUB_WORKSPACE"/patches/*.patch; do
-            echo "  - Applying $(basename "$p")"
-            (cd "$GITHUB_WORKSPACE/zmk" && git apply --3way "$p")
-          done
-        fi
+        echo "🩹 Patching ZMK split central scan behavior..."
+        python3 "$GITHUB_WORKSPACE/scripts/patch_zmk_split_central.py"
         echo "📦 Exporting Zephyr for external build system integration."
         west zephyr-export
 

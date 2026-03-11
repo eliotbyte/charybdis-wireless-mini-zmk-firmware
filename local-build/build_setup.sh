@@ -31,15 +31,9 @@ git config --global --add safe.directory /workspaces/zmk/zmk
 echo "🛠️  Updating west modules..."
 west update
 
-# --- APPLY LOCAL PATCHES (to upstream ZMK) ---
-echo "🩹 Applying local patches (if any)..."
-if [ -d "$REPO_ROOT/patches" ]; then
-  for p in "$REPO_ROOT"/patches/*.patch; do
-    [ -f "$p" ] || continue
-    echo "  - Applying $(basename "$p")"
-    (cd zmk && git apply --3way "$p")
-  done
-fi
+# --- PATCH ZMK (upstream) ---
+echo "🩹 Patching ZMK split central scan behavior..."
+python3 "$REPO_ROOT/scripts/patch_zmk_split_central.py"
 
 # Set environment variables in the current shell
 echo "🛠️  Setting Zephyr build environment..."
