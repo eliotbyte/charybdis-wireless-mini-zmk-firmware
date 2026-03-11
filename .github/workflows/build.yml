@@ -70,6 +70,13 @@ jobs:
         west init -l --mf $GITHUB_WORKSPACE/config/west.yml "$GITHUB_WORKSPACE/config"
         echo "🔄 Updating and synchronizing all repositories in the workspace."
         west update
+        echo "🩹 Applying local patches (if any)..."
+        if compgen -G "$GITHUB_WORKSPACE/patches/*.patch" > /dev/null; then
+          for p in "$GITHUB_WORKSPACE"/patches/*.patch; do
+            echo "  - Applying $(basename "$p")"
+            (cd "$GITHUB_WORKSPACE/zmk" && git apply --3way "$p")
+          done
+        fi
         echo "📦 Exporting Zephyr for external build system integration."
         west zephyr-export
 
