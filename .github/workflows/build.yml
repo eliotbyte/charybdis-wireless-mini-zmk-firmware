@@ -73,6 +73,9 @@ jobs:
         echo "📦 Exporting Zephyr for external build system integration."
         west zephyr-export
 
+        # Apply local scan recovery fix to ZMK split central (dongle)
+        git -C zmk apply --whitespace=nowarn "$GITHUB_WORKSPACE/patches/zmk-split-central-scan-fix.patch"
+
         # ───────── DEBUG LOGS ─────────
         echo ""
         echo "🪳 Debug Logs"
